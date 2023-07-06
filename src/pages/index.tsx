@@ -42,15 +42,49 @@ export default function Home() {
     }
   };
 
+  const [createProjectFrom, setCreateProjectFrom] = useState({
+    projectName: "",
+    imageUrl: "",
+  });
+
+  const handleProjectFormChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setCreateProjectFrom({
+      ...createProjectFrom,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const createProject = async () => {
+    try {
+      const { data } = await axios.post("/api/project", createProjectFrom, {
+        headers: {
+          token: "",
+        },
+      });
+      alert(data);
+    } catch (error) {}
+  };
+
   if (isLoggedIn)
     return (
       <>
         <p>FORMULARIO DE CREAR PROYECTO</p>
         <div>
           <label>Nombre de proyecto</label>
-          <input type="text" />
+          <input
+            type="text"
+            onChange={(e) => handleProjectFormChange(e)}
+            name="projectName"
+            value={createProjectFrom.projectName}
+          />
           <label>url de la imagen</label>
-          <input type="text" />
+          <input
+            type="text"
+            onChange={(e) => handleProjectFormChange(e)}
+            name="imageUrl"
+            value={createProjectFrom.imageUrl}
+          />
+          <button onClick={createProject}>create project</button>
         </div>
       </>
     );
