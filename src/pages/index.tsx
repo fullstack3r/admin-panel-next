@@ -7,6 +7,7 @@ import axios from "axios";
 
 export default function Home() {
   //logica de react
+  const [sessionToken, setSessionToken] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginForm, setLoginForm] = useState({
     username: "",
@@ -36,7 +37,7 @@ export default function Home() {
         username: "",
       });
       setIsLoggedIn(true);
-      alert(data.token);
+      setSessionToken(data.token);
     } catch (error) {
       alert(error);
     }
@@ -58,11 +59,18 @@ export default function Home() {
     try {
       const { data } = await axios.post("/api/project", createProjectFrom, {
         headers: {
-          token: "",
+          token: sessionToken,
         },
       });
-      alert(data);
-    } catch (error) {}
+      setCreateProjectFrom({
+        imageUrl: "",
+        projectName: "",
+      });
+      console.log(data);
+      alert("projecto generado");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   if (isLoggedIn)
@@ -86,6 +94,17 @@ export default function Home() {
           />
           <button onClick={createProject}>create project</button>
         </div>
+
+        <p>TAREA</p>
+        <p>
+          1. en el api de los proyectos src/pages/api/project en este archivo
+          hacer que para una peticion get nos devuelva la lista de proyectos
+        </p>
+        <p>
+          2. mostrar la lista de proyectos en la aplicacion. hacer una funcion
+          que llame a la lista de proyectos cuando entramos en la aplicacion
+          pistas: useEffect, axios, useState
+        </p>
       </>
     );
 
