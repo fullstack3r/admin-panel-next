@@ -7,6 +7,7 @@ import axios from "axios";
 
 export default function Home() {
   //logica de react
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginForm, setLoginForm] = useState({
     username: "",
     password: "",
@@ -30,11 +31,29 @@ export default function Home() {
       const { data } = await axios.post("/api/login", loginForm);
       // data nos retornara si el login ha sido correcto y un token de sesion de ser asi
       console.log(data);
+      setLoginForm({
+        password: "",
+        username: "",
+      });
+      setIsLoggedIn(true);
       alert(data.token);
     } catch (error) {
       alert(error);
     }
   };
+
+  if (isLoggedIn)
+    return (
+      <>
+        <p>FORMULARIO DE CREAR PROYECTO</p>
+        <div>
+          <label>Nombre de proyecto</label>
+          <input type="text" />
+          <label>url de la imagen</label>
+          <input type="text" />
+        </div>
+      </>
+    );
 
   return (
     <>
