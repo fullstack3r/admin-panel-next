@@ -1,7 +1,7 @@
 // si el usuario no esta autenticado mostrar login
 // si el usuario esta autenticado mostrar formulario para crear un proyecto
 // ver la lista de los ultimos 5 proyectos creado
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect} from "react";
 import styles from "../styles/Home.module.css";
 import axios from "axios";
 
@@ -22,6 +22,13 @@ export default function Home() {
     });
   };
 
+  useEffect(() => {
+    let  session = localStorage.getItem("tokenSession") || ""
+    if(session) {
+      setIsLoggedIn(true);
+    }
+  }, [])
+
   const handleSubmit = async () => {
     if (loginForm.email.length <= 0)
       return alert("el email no puede estar vacio");
@@ -36,6 +43,7 @@ export default function Home() {
         password: "",
         email: "",
       });
+      localStorage.setItem("tokenSession", data.token)
       setIsLoggedIn(true);
       console.log(data.token);
       setSessionToken(data.token);
