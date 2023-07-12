@@ -7,6 +7,11 @@ const projects = [
         id: 1, 
         projectName: "projecto de prueba",
         projectUrl: "afsdfgsgsdgds"
+    },
+    {
+        id: 2, 
+        projectName: "projecto 2",
+        projectUrl: "afsdfgsgsdgds"
     }
 ]
 
@@ -16,6 +21,11 @@ export default function handler(
 ) {
     if(req.method === "GET") {
         // parte 1 de la tarea aqui
+        // console.log(req.headers, "header")
+        // if(req.headers.token !== "fsdfsgfsgsgsdfsgfsdgsg") 
+        //     return res.status(400).json({message: "unauthorized"})
+        
+        res.status(200).json({ data: projects });
     }
 
     if(req.method === "POST") {
