@@ -10,7 +10,7 @@ export default function Home() {
   const [sessionToken, setSessionToken] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginForm, setLoginForm] = useState({
-    username: "",
+    email: "",
     password: "",
   });
   const [state, setState] = useState([]);
@@ -22,32 +22,43 @@ export default function Home() {
     });
   };
 
+  useEffect(()=> {
+    let session = localStorage.getItem("TokenSession") || "";
+   
+    if(session) {
+      setIsLoggedIn(true);
+      setSessionToken(session); 
+    }
+  }, [])
+
   const handleSubmit = async () => {
-    if (loginForm.username.length <= 0)
-      return alert("el username no puede estar vacio");
+    if (loginForm.email.length <= 0)
+      return alert("el email no puede estar vacio");
     if (loginForm.password.length <= 0)
       return alert("el password no puede estar vacio");
 
     try {
-      const { data } = await axios.post("/api/login", loginForm);
+      const { data } = await axios.post( process.env.NEXT_PUBLIC_API + "/auth/login", loginForm);
       // data nos retornara si el login ha sido correcto y un token de sesion de ser asi
-      console.log(data);
+      console.log("🚀 ~ file: index.tsx:35 ~ handleSubmit ~ data:", data)
       setLoginForm({
         password: "",
-        username: "",
+        email: "",
       });
       setIsLoggedIn(true);
+      localStorage.setItem("TokenSession", data.token);
+
       setSessionToken(data.token);
-      getProjects();
+      // getProjects();
     } catch (error) {
       alert(error);
     }
   };
   async function getProjects() {
     try {
-      const { data } = await axios.get("/api/project");
+      const { data } = await axios.get(process.env.NEXT_PUBLIC_API + "/projects");
       console.log("🚀 ~ file: index.tsx:53 ~ getProjects ~ data:", data);
-      setState(data.data);
+      setState(data);
     } catch (error) {
       console.log(error);
     }
@@ -57,8 +68,8 @@ export default function Home() {
   }, []);
 
   const [createProjectFrom, setCreateProjectFrom] = useState({
-    projectName: "",
-    imageUrl: "",
+    name: "",
+    img: "",
   });
 
   const handleProjectFormChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -70,17 +81,18 @@ export default function Home() {
 
   const createProject = async () => {
     try {
-      const { data } = await axios.post("/api/project", createProjectFrom, {
+      const { data } = await axios.post(process.env.NEXT_PUBLIC_API + "/projects", createProjectFrom, {
         headers: {
           token: sessionToken,
+          Authorization: 'Bearer '+ sessionToken
         },
       });
       setCreateProjectFrom({
-        imageUrl: "",
-        projectName: "",
+        img: "",
+        name: "",
       });
-      console.log(data);
-      alert("projecto generado");
+      getProjects();
+     
     } catch (error) {
       console.log(error);
     }
@@ -115,7 +127,7 @@ export default function Home() {
                         key={p.id}
                         className="d-flex text-body-secondary pt-3"
                       >
-                        <svg
+                        {/* <svg
                           className="bd-placeholder-img flex-shrink-0 me-2 rounded"
                           width="32"
                           height="32"
@@ -134,12 +146,14 @@ export default function Home() {
                           <text x="50%" y="50%" fill="#007bff" dy=".3em">
                             32x32
                           </text>
-                        </svg>
+                        </svg> */}
+                        <img  width="48"
+                  height="38" className="bd-placeholder-img flex-shrink-0 me-2 rounded " src={p.img}/>
 
                         <p className="pb-3 mb-0 small lh-sm border-bottom">
                           <strong className="d-block text-gray-dark">
                             {" "}
-                            {p.projectName}
+                            {p.name}
                           </strong>
                           Some representative placeholder content, with some
                           information about this user. Imagine this being some
@@ -157,21 +171,21 @@ export default function Home() {
               <p>FORMULARIO DE CREAR PROYECTO</p>
               <div className="text-center">
                 <label>Nombre de proyecto</label>
-                <form className="form-control">
+                <div className="form-control">
                   <input
                     className="form-control"
                     type="text"
                     onChange={(e) => handleProjectFormChange(e)}
-                    name="projectName"
-                    value={createProjectFrom.projectName}
+                    name="name"
+                    value={createProjectFrom.name}
                   />
                   <label>url de la imagen</label>
                   <input
                     className="form-control"
                     type="text"
                     onChange={(e) => handleProjectFormChange(e)}
-                    name="imageUrl"
-                    value={createProjectFrom.imageUrl}
+                    name="img"
+                    value={createProjectFrom.img}
                   />
                   <button
                     className="btn btn-primary mt-2"
@@ -179,7 +193,7 @@ export default function Home() {
                   >
                     create project
                   </button>
-                </form>
+                </div>
               </div>
             </div>
             {/* <ul>
@@ -200,16 +214,16 @@ export default function Home() {
   return (
     <>
       <div className={styles.loginContainer}>
-        <form>
+      <div >
           <h1 className="h3 mb-3 fw-normal">Please sign in</h1>
           <div className="form-floating">
             <input
               type="email"
               className="form-control"
               placeholder="name@example.com"
-              name="username"
+              name="email"
               onChange={(e) => handleFormChange(e)}
-              value={loginForm.username}
+              value={loginForm.email}
             />
             <label>Email address</label>
           </div>
@@ -228,11 +242,11 @@ export default function Home() {
           <button
             onClick={handleSubmit}
             className="btn btn-primary w-100 py-2"
-            type="submit"
           >
             Sign in
           </button>
-        </form>
+          </div>
+      
 
         {/* <div className={styles.loginFormContainer}>
           <label>username</label>
