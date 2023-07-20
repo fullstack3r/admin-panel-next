@@ -35,3 +35,6 @@ a {
 .bg-black {
   background-color: #040404;
 }
+.cursor-pointer {
+  cursor: pointer;
+}
