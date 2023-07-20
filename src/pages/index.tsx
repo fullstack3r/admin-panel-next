@@ -1,6 +1,7 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 import axios from "axios";
+import Swal from 'sweetalert2'
 // import {Modal} from "bootstrap";
 
 export default function Home() {
@@ -76,7 +77,7 @@ export default function Home() {
     description: "",
   });
 
-  const handleProjectFormChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleProjectFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setCreateProjectFrom({
       ...createProjectFrom,
       [e.target.name]: e.target.value,
@@ -161,8 +162,40 @@ export default function Home() {
     });
     activeModal();
   };
-  const deleteConfirm = (id: string) => {
-    
+  const deleteConfirm = async (id: string) => {
+    Swal.fire({
+      title: '¿Estas seguro?',
+      text: "Estas seguro que quieres eliminar este proyecto permanentemente",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, Eliminar!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const { data } = await axios.delete(
+            process.env.NEXT_PUBLIC_API + "/projects/" + id,
+            {
+              headers: {
+                token: sessionToken,
+                Authorization: "Bearer " + sessionToken,
+              },
+            }
+          ); 
+          Swal.fire(
+            'Eliminado!',
+            'Tu ptoyecto se elimino correctamente.',
+            'success'
+          )
+          getProjects();
+        } catch (error) {
+          console.log(error);
+        }
+
+        
+      }
+    })
   };
 
   
@@ -225,8 +258,8 @@ export default function Home() {
                         {p.description}
                       </div>
                       <div className="p-2 col-1 text-center">
-                        <i onClick={() => editModal(p._id, p.name, p.img, p.description)} className="fa-solid fa-pen-to-square p-2 "></i>
-                        <i onClick={() => deleteConfirm(p._id)} className="fa-solid fa-trash"></i>
+                        <i onClick={() => editModal(p._id, p.name, p.img, p.description)} className="fa-solid fa-pen-to-square p-2 cursor-pointer"></i>
+                        <i onClick={() => deleteConfirm(p._id)} className="fa-solid fa-trash cursor-pointer "></i>
                       </div>
                     </div>
                   ))
@@ -274,9 +307,8 @@ export default function Home() {
                     value={createProjectFrom.img}
                   />
                   <label className="mt-2">Descripción</label>
-                  <textarea name="description" onChange={(e) => handleProjectFormChange(e)} className="form-control" value={createProjectFrom.description}>
-
-                  </textarea>
+                  <textarea name="description" onChange={(e) => handleProjectFormChange(e)} className="form-control" value={createProjectFrom.description} />
+                
                 </div>
               </div>
               <div className="modal-footer">
